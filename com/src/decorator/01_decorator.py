@@ -27,6 +27,27 @@ def log_with_param(text):  # 最外层形参为装饰器参数
     return decorator
 
 
+# 类装饰器
+def class_decorator(obj):  # print(School.__dict__)
+    # 添加对象属性
+    obj.param = 'param'
+
+    def print_param():
+        pass
+
+    # 添加对象方法
+    obj.func = print_param
+    return obj
+
+
+# 带参类装饰器：给类添加一个可变的数据属性(类属性)
+def class_decorator_with_param(**kwargs):
+    def add(obj):
+        for key, value in kwargs.items():
+            setattr(obj, key, value)
+        return obj
+    return add
+
 @log
 def test(p):
     print(test.__name__ + 'params: ' + p)
@@ -35,6 +56,22 @@ def test(p):
 @log_with_param(text='text')
 def test_with_param(p):
     print(test_with_param.__name__ + 'params: ' + p)
+
+
+# 类装饰器调用
+@class_decorator
+class TestClass:
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+
+
+# 带参类装饰器调用
+@class_decorator_with_param(sex='male', city='shanghai')
+class Person:
+    def __init__(self):
+        self.name = 'sqw'
+        self.age = 100
 
 
 if __name__ == '__main__':
@@ -48,3 +85,16 @@ if __name__ == '__main__':
     # decorator = log_with_param('text')
     # wrapper = decorator(test_with_param)
     # wrapper('abc')
+
+    # 打印类的属性字典
+    print(TestClass.__dict__)  # 显示'param': 'param': 'func': <function class_decorator.<locals>print_param ...
+
+    print(Person.__dict__)
+    # 检查装饰器新增的属性是否为类属性
+    p1 = Person()
+    p2 = Person()
+    print(p1.sex)
+    print(p2.sex)
+    Person.sex = 'female'
+    print(p1.sex)
+    print(p2.sex)   # p1,p2的sex转为female，说明sex属性是类属性
